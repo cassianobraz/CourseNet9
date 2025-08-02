@@ -37,7 +37,7 @@ public class VideoGameController(VideoGameDbContext context) : ControllerBase
 
         request.Id = await _context.VideoGames.MaxAsync(g => g.Id) + 1;
 
-        await _context.VideoGames.AddAsync(request, ct);
+        _context.VideoGames.Add(request);
         await _context.SaveChangesAsync(ct);
 
         return CreatedAtAction(nameof(GetVideoGameById), new { id = request.Id }, request);
