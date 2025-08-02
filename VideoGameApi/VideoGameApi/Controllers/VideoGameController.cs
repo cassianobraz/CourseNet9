@@ -19,9 +19,9 @@ public class VideoGameController(VideoGameDbContext context) : ControllerBase
 
     [HttpGet]
     [Route("{id:int}")]
-    public async Task<ActionResult<VideoGame>> GetVideoGameById(int id)
+    public async Task<ActionResult<VideoGame>> GetVideoGameById(int id, CancellationToken ct)
     {
-        var game = await _context.VideoGames.FirstOrDefaultAsync(g => g.Id == id);
+        var game = await _context.VideoGames.FirstOrDefaultAsync(g => g.Id == id, ct);
 
         if (game is null)
             return NotFound();
@@ -30,23 +30,23 @@ public class VideoGameController(VideoGameDbContext context) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<VideoGame>> AddVideoGame(VideoGame request)
+    public async Task<ActionResult<VideoGame>> AddVideoGame(VideoGame request, CancellationToken ct)
     {
         if (request is null)
             return BadRequest();
 
         request.Id = await _context.VideoGames.MaxAsync(g => g.Id) + 1;
 
-        await _context.VideoGames.AddAsync(request);
-        await _context.SaveChangesAsync();
+        await _context.VideoGames.AddAsync(request, ct);
+        await _context.SaveChangesAsync(ct);
 
         return CreatedAtAction(nameof(GetVideoGameById), new { id = request.Id }, request);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateVideoGame(int id, VideoGame request)
+    public async Task<IActionResult> UpdateVideoGame(int id, VideoGame request, CancellationToken ct)
     {
-        var game = await _context.VideoGames.FirstOrDefaultAsync(g => g.Id == id);
+        var game = await _context.VideoGames.FirstOrDefaultAsync(g => g.Id == id, ct);
 
         if (game is null)
             return NotFound();
@@ -57,20 +57,21 @@ public class VideoGameController(VideoGameDbContext context) : ControllerBase
         game.Publisher = request.Publisher;
 
         _context.VideoGames.Update(game);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
 
         return NoContent();
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> DeleteVideoGame(int id)
+    public async Task<IActionResult> DeleteVideoGame(int id, CancellationToken ct)
     {
-        var game = await _context.VideoGames.FirstOrDefaultAsync(g => g.Id == id);
+        var game = await _context.VideoGames.FirstOrDefaultAsync(g => g.Id == id, ct);
 
         if (game is null)
             return NotFound();
 
         _context.VideoGames.Remove(game);
+        await _context.SaveChangesAsync(ct);
         return NoContent();
     }
 }
