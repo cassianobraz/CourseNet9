@@ -1,3 +1,5 @@
+using JwtAuthDotNet9.Data;
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,12 +7,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+builder.Services.AddDbContext<UserDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapScalarApiReference();
     app.MapOpenApi();
+    // scalar
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
