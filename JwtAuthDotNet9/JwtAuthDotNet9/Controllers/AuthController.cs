@@ -22,14 +22,25 @@ public class AuthController(IAuthService authService) : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<string>> Login(UserDto request, CancellationToken ct)
+    public async Task<ActionResult<TokenResponseDto>> Login(UserDto request, CancellationToken ct)
     {
-        var token = await authService.LoginAsync(request, ct);
+        var result = await authService.LoginAsync(request, ct);
 
-        if (token is null)
+        if (result is null)
             return BadRequest("Invalid username or password.");
 
-        return Ok(token);
+        return Ok(result);
+    }
+
+    [HttpPost("refresh-token")]
+    public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefreshTokenRequestDto request, CancellationToken ct)
+    {
+        var result = await authService.RefreshTokensAsync(request, ct);
+
+        if (result is null || result.AccessToken is null || result.RefreshToken is null)
+            return Unauthorized("Invalid refresh token.");
+
+        return Ok(result);
     }
 
     [Authorize]
