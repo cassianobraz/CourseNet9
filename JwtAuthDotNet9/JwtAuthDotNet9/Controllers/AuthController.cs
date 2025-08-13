@@ -1,6 +1,7 @@
 ﻿using JwtAuthDotNet9.Entities;
 using JwtAuthDotNet9.Models;
 using JwtAuthDotNet9.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JwtAuthDotNet9.Controllers;
@@ -31,9 +32,17 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok(token);
     }
 
+    [Authorize]
     [HttpGet]
     public IActionResult AuthenticatedOnlyEndpoint()
     {
         return Ok("You are authenticated!");
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin-only")]
+    public IActionResult AdminOnlyEndpoint()
+    {
+        return Ok("You are and admin!");
     }
 }
